@@ -38,11 +38,103 @@
             return obj;
         });
 
-</script>
+
+
+    function graphUpdate(graphData) {
+        // renew the graph with the data from the uploaded file
+        var graphDataObj = JSON.parse(graphData);
+        Graph.graphData(graphDataObj);
+    }
+
+    var students = [];
+    var exams = [];
+
+    function fileHandler(fileContent) {
+        // Go through each line
+        var lines = fileContent.split('\n');
+
+        // each line is a student / student id
+        for (var i = 0; i < lines.length; i++) {
+            // each line contains exam ids
+            var line = lines[i];
+
+            // create a new student object
+            var student = {};
+            // and insert a new propery with the id of the student
+            student["id"] = i + 1; // +1 so the student ids start from 1 but not 0
+
+            // Check if last character in line is space and remove it
+            line = line.replace(/\s*$/, "");
+
+            // separate the exams by space and make an array of them
+            var student_exams = line.split(' ');
+
+            // and insert the array with the exams of the student into a new property into the student object
+            student["exams"] = student_exams;
+
+            // finally insert the new student (his object) into the students array
+            students.push(student);
+
+            // Now we will loop to each exam
+            for (j = 0; j <= student_exams.length - 1; j++) {
+
+                //// loop to check if the exam is already listed in the exams array
+                for (k = 0; k <= exams.length; k++) {
+                    console.log(exams);
 
 
 
-<script type="text/javascript">
+
+
+
+
+///// work
+                    if (exams[k].exam.id) {
+                        // if exam not in exams array then 
+                        if (!exams[k].exam.students.includes(student.exams[j])) {
+                            console.log("ifyes");
+                            // if the exam is already inside the array, then just insert the student id
+                            exam["students"] = student.id;
+                        }
+                    }
+                    else {
+                        console.log("ifno");
+                        // create a new exam object
+                        var exam = {};
+                        // and insert a new property with the id of the exam
+                        exam["id"] = student.exams[j];
+                        // and insert the student inside the array with the students
+                        exam["students"] = student.id;
+                        // finally insert the new exam (its object) into the exams array
+                        exams.push(exam);
+                    }
+
+///// work
+
+
+
+
+
+
+
+
+
+                }
+
+                // We will assign the student ids to each exam into the exam_students array
+                console.log("Student " + student.id + " is enrolled in exam " + student.exams[j]);
+            }
+            console.log("#################################");
+        }
+        // display all the student objects
+        // console.log(students);
+
+        //console.log(exams);
+
+        // display the graph
+        // graphUpdate(fileContent);
+    }
+
 
     document.querySelector("#file-input").addEventListener('change', function () {
         // files that user has chosen
@@ -83,15 +175,13 @@
         // file reading finished successfully
         reader.addEventListener('load', function (e) {
             var text = e.target.result;
+            //console.log(text);
 
+            fileHandler(text);
             // contents of the file
             // document.querySelector("#contents").innerHTML = text;
             // document.querySelector("#contents").style.display = 'block';
             document.querySelector("#file-input-label").style.display = 'block';
-
-            // renew the graph with the data from the uploaded file
-            var graphDataObj = JSON.parse(text);
-            Graph.graphData(graphDataObj);
         });
 
         // file reading failed
