@@ -1,70 +1,114 @@
 {{!-- <h1>{{title}}</h1>
 <p>Welcome to {{title}}</p> --}}
-<link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
 
-<div style="visibility:hidden; opacity:0" id="dropzone">
-    <div id="textnode">Drop anywhere!</div>
+<!-- https://github.com/vasturiano/3d-force-graph -->
+
+<div id="file-container">
+    <label for="file-input" id="file-input-label">Choose A Dataset</label>
+    <!-- <input type="file" id="file-input" accept="text/plain" />-->
+    <input type="file" id="file-input" accept=".stu,.txt,.json" />
+    <div id="file-progress-container"><span id="file-progress-percent"></span>% read</div>
+    <div id="contents"></div>
 </div>
-<div id=text>Drag a file anywhere</div>
+
 <div id="3d-graph"></div>
 
-<script src="/javascripts/3d-force-graph.min.js"></script>
-<!-- https://github.com/vasturiano/3d-force-graph -->
 <script>
+
+    // loading the default graph
     const Graph = ForceGraph3D()
-    (document.getElementById('3d-graph'))
+        (document.getElementById('3d-graph'))
         .jsonUrl('/datasets/miserables.json')
         .nodeLabel('id')
-        .nodeColor('color');
+        .nodeColor('color')
+        .nodeThreeObject(node => {
+            // use a sphere as a drag handle
+            const obj = new THREE.Mesh(
+                new THREE.SphereGeometry(10),
+                new THREE.MeshBasicMaterial({ depthWrite: false, transparent: true, opacity: 0 })
+            );
+
+            // add text sprite as child
+            const sprite = new SpriteText(node.id);
+            sprite.material.depthWrite = false; // make sprite background transparent
+            sprite.color = node.color;
+            sprite.textHeight = 8;
+            obj.add(sprite);
+
+            return obj;
+        });
+
 </script>
 
 
 
-<script>
-    var lastTarget = null;
+<script type="text/javascript">
 
-function isFile(evt) {
-    var dt = evt.dataTransfer;
-
-    for (var i = 0; i < dt.types.length; i++) {
-        if (dt.types[i] === "Files") {
-            return true;
+    document.querySelector("#file-input").addEventListener('change', function () {
+        // files that user has chosen
+        var all_files = this.files;
+        if (all_files.length == 0) {
+            alert('Error : No file selected');
+            return;
         }
-    }
-    return false;
-}
 
-window.addEventListener("dragenter", function (e) {
-    if (isFile(e)) {
-        lastTarget = e.target;
-        document.querySelector("#dropzone").style.visibility = "";
-        document.querySelector("#dropzone").style.opacity = 1;
-        document.querySelector("#textnode").style.fontSize = "48px";
-    }
-});
+        // first file selected by user
+        var file = all_files[0];
 
-window.addEventListener("dragleave", function (e) {
-    e.preventDefault();
-    if (e.target === document || e.target === lastTarget) {
-        document.querySelector("#dropzone").style.visibility = "hidden";
-        document.querySelector("#dropzone").style.opacity = 0;
-        document.querySelector("#textnode").style.fontSize = "42px";
-    }
-});
+        // files types allowed
+        //var allowed_types = ['text/plain'];
+        // var allowed_types = ['.stu,.txt,.json'];
+        //     if (allowed_types.indexOf(file.type) == -1) {
+        //           alert('Error : Incorrect file type');
+        //           return;
+        //     } 
 
-window.addEventListener("dragover", function (e) {
-    e.preventDefault();
-});
+        // Max 2 MB allowed
+        var max_size_allowed = 2 * 1024 * 1024
+        if (file.size > max_size_allowed) {
+            alert('Error : Exceeded size 2MB');
+            return;
+        }
 
-window.addEventListener("drop", function (e) {
-    e.preventDefault();
-    document.querySelector("#dropzone").style.visibility = "hidden";
-    document.querySelector("#dropzone").style.opacity = 0;
-    document.querySelector("#textnode").style.fontSize = "42px";
-    if(e.dataTransfer.files.length == 1)
-    {
-        document.querySelector("#text").innerHTML =
-            "<b>File selected:</b><br>" + e.dataTransfer.files[0].name;
-    }
-});
+        // file validation is successfull
+        // we will now read the file
+
+        var reader = new FileReader();
+
+        // file reading started
+        reader.addEventListener('loadstart', function () {
+            document.querySelector("#file-input-label").style.display = 'none';
+        });
+
+        // file reading finished successfully
+        reader.addEventListener('load', function (e) {
+            var text = e.target.result;
+
+            // contents of the file
+            // document.querySelector("#contents").innerHTML = text;
+            // document.querySelector("#contents").style.display = 'block';
+            document.querySelector("#file-input-label").style.display = 'block';
+
+            // renew the graph with the data from the uploaded file
+            var graphDataObj = JSON.parse(text);
+            Graph.graphData(graphDataObj);
+        });
+
+        // file reading failed
+        reader.addEventListener('error', function () {
+            alert('Error : Failed to read file');
+        });
+
+        // file read progress 
+        reader.addEventListener('progress', function (e) {
+            if (e.lengthComputable == true) {
+                document.querySelector("#file-progress-percent").innerHTML = Math.floor((e.loaded / e.total) * 100);
+                document.querySelector("#file-progress-percent").style.display = 'block';
+            }
+        });
+
+        // read as text file
+        reader.readAsText(file);
+    });
+
 </script>
