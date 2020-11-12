@@ -7,4 +7,4 @@
 *.o
 *.so
 *.notes
-node_modules/
+**/node_modules
