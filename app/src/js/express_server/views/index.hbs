@@ -3,10 +3,11 @@
 <div id="3d-graph"></div>
 
 <script src="./javascripts/3d-force-graph.min.js"></script>
+<!-- https://github.com/vasturiano/3d-force-graph -->
 <script>
     const Graph = ForceGraph3D()
     (document.getElementById('3d-graph'))
         .jsonUrl('./datasets/miserables.json')
         .nodeLabel('id')
-        .nodeAutoColorBy('group');
+        .nodeColor('color');
 </script>
