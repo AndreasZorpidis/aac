@@ -1,0 +1,12 @@
+{{!-- <h1>{{title}}</h1>
+<p>Welcome to {{title}}</p> --}}
+<div id="3d-graph"></div>
+
+<script src="./javascripts/3d-force-graph.min.js"></script>
+<script>
+    const Graph = ForceGraph3D()
+    (document.getElementById('3d-graph'))
+        .jsonUrl('./datasets/miserables.json')
+        .nodeLabel('id')
+        .nodeAutoColorBy('group');
+</script>
