@@ -46,12 +46,18 @@
         Graph.graphData(graphDataObj);
     }
 
+    // global array of student objects
     var students = [];
+    // global array of exam objects
     var exams = [];
 
     function fileHandler(fileContent) {
         // Go through each line
         var lines = fileContent.split('\n');
+
+        // reset the arrays of objects (these must reset every time we upload a file)
+        students = [];
+        exams = [];
 
         // each line is a student / student id
         for (var i = 0; i < lines.length; i++) {
@@ -75,61 +81,54 @@
             // finally insert the new student (his object) into the students array
             students.push(student);
 
+
             // Now we will loop to each exam
             for (j = 0; j <= student_exams.length - 1; j++) {
 
-                //// loop to check if the exam is already listed in the exams array
-                for (k = 0; k <= exams.length; k++) {
-                    console.log(exams);
+                // We will assign the student ids to each exam into the exam array
+                console.log("Student " + student.id + " is enrolled in exam " + student.exams[j]);
 
 
+                // check if the exam is already listed in the exams array
+                // returns -1 if not found or the index position if found
+                var exam_index = exams.findIndex(x => x.id === student.exams[j]);
 
-
-
-
-
-///// work
-                    if (exams[k].exam.id) {
-                        // if exam not in exams array then 
-                        if (!exams[k].exam.students.includes(student.exams[j])) {
-                            console.log("ifyes");
-                            // if the exam is already inside the array, then just insert the student id
-                            exam["students"] = student.id;
-                        }
-                    }
-                    else {
-                        console.log("ifno");
-                        // create a new exam object
-                        var exam = {};
-                        // and insert a new property with the id of the exam
-                        exam["id"] = student.exams[j];
-                        // and insert the student inside the array with the students
-                        exam["students"] = student.id;
-                        // finally insert the new exam (its object) into the exams array
-                        exams.push(exam);
-                    }
-
-///// work
-
-
-
-
-
-
-
-
-
+                // if the exam is not in the list (array of exam objects) 
+                if (exam_index === -1 || exam_index === undefined) {
+                    // create a new exam object
+                    var exam = {};
+                    // and insert a new property with the id of the exam
+                    exam["id"] = student.exams[j];
+                    // and insert the student inside the array with the students
+                    exam["students"] = [student.id];
+                    // finally insert the new exam (its object) into the exams array
+                    exams.push(exam);
+                } else {
+                    // if the exam exists, 
+                    // check if the student exists (not needed yet since each line is a new student id)
+                    // if student exist 
+                    // continue
+                    // if not
+                    // then add student id into the student array of the exam object 
+                    exams[exam_index].students.push(student.id);
                 }
 
-                // We will assign the student ids to each exam into the exam_students array
-                console.log("Student " + student.id + " is enrolled in exam " + student.exams[j]);
             }
-            console.log("#################################");
-        }
-        // display all the student objects
-        // console.log(students);
 
-        //console.log(exams);
+        }
+        console.log("#################################");
+        //var print_students = { "students": students };
+        //var print_exams = { "exams": exams };
+        //console.log(print_students);
+        //console.log(print_exams);
+
+        // Loop through each exam
+        for (l = 0; l <= exams.length - 1; l++) {
+            // And print each student id per exam
+            for (m = 0; m <= exams[l].students.length - 1; m++) {
+                console.log("Exam " + exams[l].id + " Enrolled students: " + exams[l].students[m]);
+            }
+        };
 
         // display the graph
         // graphUpdate(fileContent);
