@@ -76,7 +76,11 @@
             var student_exams = line.split(' ');
 
             // and insert the array with the exams of the student into a new property into the student object
-            student["exams"] = student_exams;
+            if (student_exams === undefined || student_exams.length == 0 || student_exams[0] === "") {
+                student["exams"] = ["0"]; // insert exam id 0 if there are no exams
+            } else {
+                student["exams"] = student_exams; // insert the array with the exams of the student
+            }
 
             // finally insert the new student (his object) into the students array
             students.push(student);
@@ -116,22 +120,24 @@
             }
 
         }
-        console.log("#################################");
-        //var print_students = { "students": students };
-        //var print_exams = { "exams": exams };
-        //console.log(print_students);
-        //console.log(print_exams);
+
 
         // Loop through each exam
         for (l = 0; l <= exams.length - 1; l++) {
             // And print each student id per exam
             for (m = 0; m <= exams[l].students.length - 1; m++) {
-                console.log("Exam " + exams[l].id + " Enrolled students: " + exams[l].students[m]);
+                // console.log("Exam " + exams[l].id + " Enrolled students: " + exams[l].students[m]);
             }
         };
 
+        console.log("#################################");
+        var print_students = { "students": students };
+        var print_exams = { "exams": exams };
+        console.log(print_students);
+        console.log(print_exams);
+
         // display the graph
-        // graphUpdate(fileContent);
+        graphUpdate(fileContent);
     }
 
 
