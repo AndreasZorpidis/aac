@@ -1,8 +1,27 @@
 ## Algorithms and Complexity (DIT.UOI)
+### University of Ioannina
 
-## 1. Αποσπάσματα κώδικα
+## Graph coloring algorithms with visualization.
+### This is a Node.js desktop application built with Electron.js, Express.js, Handlebars and 3D force-directed graph component using ThreeJS/WebGL.
 
-* [read_data.cpp](/app/src/c++/read_data.cpp), [read_data.js](/app/src/js/read_data.js), : ανάγνωση δεδομένων [toy_e5_s6.stu](./app/datasets/toy_e5_s6.stu), καταγραφή φοιτητών ανά εξέταση.
-* [set_ops.cpp](/app/src/set_ops.cpp): εύρεση τομής ενός std::set<int> με ένα άλλο std::set<int>.
-* [random_numbers.cpp](./app/src/random_numbers.cpp), [random_numbers2.cpp](./app/src/random_numbers2.cpp): παραγωγή ψεύδο-τυχαίων ακέραιων τιμών στο διάστημα [1,V].
-* [greedy_coloring.cpp](./app/src/greedy_coloring.cpp): απεικόνιση γράφου ως λίστα γειτνίασης και greedy χρωματισμός του γράφου.
+## Quick start
+Clone this repo
+```
+git clone https://github.com/AndreasZorpidis/aac.git
+```
+and enter into the directory.
+```
+cd aac
+```
+Install the dependencies required.
+```
+npm install
+```
+Run the server at http://localhost:3000
+```
+npm start
+```
+Or build the app as a Windows executable.
+```
+electron-packager . AAC --platform=win32  --arch=x64 --overwrite echo 'Built for WIN'
+```
