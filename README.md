@@ -1,8 +1,7 @@
-## Algorithms and Complexity (DIT.UOI)
-### University of Ioannina
-
 ## Graph coloring algorithms with visualization.
-### This is a Node.js desktop application built with Electron.js, Express.js, Handlebars and 3D force-directed graph component using ThreeJS/WebGL.
+#### Algorithms and Complexity @DIT.UOI - University of Ioannina
+
+#### This is a Node.js desktop application built with Electron.js, Express.js, Handlebars and 3D force-directed graph component using ThreeJS/WebGL.
 
 ## Quick start
 Clone this repo
@@ -11,7 +10,7 @@ git clone https://github.com/AndreasZorpidis/aac.git
 ```
 and enter into the directory.
 ```
-cd aac
+cd aac/express_server
 ```
 Install the dependencies required.
 ```
@@ -23,5 +22,5 @@ npm start
 ```
 Or build the app as a Windows executable.
 ```
-electron-packager . AAC --platform=win32  --arch=x64 --overwrite echo 'Built for WIN'
+electron-packager . AAC --platform=win32  --arch=x64 --overwrite echo 'Built for Windows'
 ```
