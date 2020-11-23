@@ -46,6 +46,22 @@
         Graph.graphData(graphDataObj);
     }
 
+
+    function count_common_elements(s1, s2) {
+        var c = 0;
+        for (var x = 0; x <= s1.length - 1; x++) {
+            for (var y = 0; y <= s2.length - 1; y++) {
+                if (s1[x] === s2[y]) {
+                    c++;
+                    break;
+                }
+            }
+        }
+        // console.log("c");
+        // console.log(c);
+        return c;
+    }
+
     // global array of student objects
     var students = [];
     // global array of exam objects
@@ -121,23 +137,46 @@
 
         }
 
-
+        console.log("#################################");
         // Loop through each exam
         for (l = 0; l <= exams.length - 1; l++) {
             // And print each student id per exam
             for (m = 0; m <= exams[l].students.length - 1; m++) {
-                // console.log("Exam " + exams[l].id + " Enrolled students: " + exams[l].students[m]);
+                console.log("Exam " + exams[l].id + " Enrolled students: " + exams[l].students[m]);
             }
         };
 
-        console.log("#################################");
+        console.log("############STATS##############");
         var print_students = { "students": students };
         var print_exams = { "exams": exams };
         console.log(print_students);
         console.log(print_exams);
 
+
+        console.log("##########ADJACENCY MATRIX###########");
+        var adj_matrix = new Array(exams.length).fill(0).map(() => new Array(exams.length).fill(0));
+
+        for (n = 0; n < exams.length; n++) {
+            for (o = 0; o < exams.length; o++) {
+                if (n == o) {
+                    adj_matrix[n][o] = 0; // adj_matrix[i][j]
+                    continue;
+                }
+                var c = count_common_elements(exams[n].students, exams[o].students);
+
+                if (c > 0) {
+                    n+1;
+                    o+1;
+                    console.log(exams[n].id + " " + exams[o].id + " " + c);
+                }
+                adj_matrix[n][o] = c;
+            }
+        }
+
+        console.log(adj_matrix);
+
         // display the graph
-        graphUpdate(fileContent);
+        //graphUpdate(fileContent);
     }
 
 

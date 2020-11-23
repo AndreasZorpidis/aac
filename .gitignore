@@ -8,3 +8,4 @@
 *.so
 *.notes
 **/node_modules
+**/AAC-win32-x64
