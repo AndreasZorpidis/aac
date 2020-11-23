@@ -165,8 +165,6 @@
                 var c = count_common_elements(exams[n].students, exams[o].students);
 
                 if (c > 0) {
-                    n+1;
-                    o+1;
                     console.log(exams[n].id + " " + exams[o].id + " " + c);
                 }
                 adj_matrix[n][o] = c;
@@ -174,6 +172,21 @@
         }
 
         console.log(adj_matrix);
+
+        console.log("##########CONFLICT DENSITY###########");
+
+        var r = 0;
+        for (var p = 0; p < exams.length; p++) {
+            for (var q = 0; q < exams.length; q++) {
+                if (adj_matrix[p][q] > 0) {
+                    r++;
+                }
+            }
+        }
+
+        var cd = r / (exams.length * exams.length);
+        console.log("Conflict Density: " + cd);
+
 
         // display the graph
         //graphUpdate(fileContent);
