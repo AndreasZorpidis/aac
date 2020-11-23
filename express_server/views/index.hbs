@@ -188,8 +188,43 @@
         console.log("Conflict Density: " + cd);
 
 
+        console.log("##########GRAPH COLORING###########");
+// to do
+// loop through the adjacency matrix
+// if the current row value matches the column value
+// add the current row number and column number to the addEdge function
+// which adds them as objects in an arrayy like:
+{{!-- [
+    {"source": "1", "target": "3"},
+    {"source": "2", "target": "4"},
+    {"source": "3", "target": "5"},
+    {"source": "3", "target": "6"},
+    {"source": "6", "target": "3"},
+    {"source": "4", "target": "2"}
+ ] --}}
+
+
+// final object to pass to the graphUpdate function
+{{!-- {
+  "nodes": [
+    {"id": "1", "color": "#FFFFFF"},
+    {"id": "2", "color": "#ff0000"},
+    {"id": "3", "color": "#ff0000"},
+    {"id": "4", "color": "#ff0080"},
+    {"id": "5", "color": "#ff0080"},
+    {"id": "6", "color": "#50ef39"}
+  ],
+  "links": [
+    {"source": "1", "target": "3"},
+    {"source": "2", "target": "4"},
+    {"source": "3", "target": "5"},
+    {"source": "3", "target": "6"},
+    {"source": "6", "target": "3"},
+    {"source": "4", "target": "2"}
+  ]
+} --}}
         // display the graph
-        //graphUpdate(fileContent);
+        graphUpdate(fileContent);
     }
 
 
