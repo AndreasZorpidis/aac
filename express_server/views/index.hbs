@@ -47,6 +47,22 @@
     }
 
 
+        // String to hex color generator so we will be getting consistent colors by the names of the sensors
+        // example:  stringToColour(k+uniqueSensorIdList[k]);
+        // We are adding the sensor id with the (k) from the loop to differentiate the colors when the sensors have similar names
+        function stringToColour(str) {
+            var hash = 0;
+            for (var i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            var colour = '#';
+            for (var i = 0; i < 3; i++) {
+                var value = (hash >> (i * 8)) & 0xFF;
+                colour += ('00' + value.toString(16)).substr(-2);
+            }
+            return colour;
+        }
+
     function count_common_elements(s1, s2) {
         var c = 0;
         for (var x = 0; x <= s1.length - 1; x++) {
@@ -189,42 +205,54 @@
 
 
         console.log("##########GRAPH COLORING###########");
-// to do
-// loop through the adjacency matrix
-// if the current row value matches the column value
-// add the current row number and column number to the addEdge function
-// which adds them as objects in an arrayy like:
-{{!-- [
-    {"source": "1", "target": "3"},
-    {"source": "2", "target": "4"},
-    {"source": "3", "target": "5"},
-    {"source": "3", "target": "6"},
-    {"source": "6", "target": "3"},
-    {"source": "4", "target": "2"}
- ] --}}
+        // to do
+        // loop through the adjacency matrix
+        // if the current row value matches the column value
+        // add the current row number and column number to the addEdge function
+        // which adds them as objects in an arrayy like:
+
+        var final_graph =
+        {
+            "nodes": [],
+            "links": []
+        };
 
 
-// final object to pass to the graphUpdate function
-{{!-- {
-  "nodes": [
-    {"id": "1", "color": "#FFFFFF"},
-    {"id": "2", "color": "#ff0000"},
-    {"id": "3", "color": "#ff0000"},
-    {"id": "4", "color": "#ff0080"},
-    {"id": "5", "color": "#ff0080"},
-    {"id": "6", "color": "#50ef39"}
-  ],
-  "links": [
-    {"source": "1", "target": "3"},
-    {"source": "2", "target": "4"},
-    {"source": "3", "target": "5"},
-    {"source": "3", "target": "6"},
-    {"source": "6", "target": "3"},
-    {"source": "4", "target": "2"}
-  ]
-} --}}
+
+        for (var s = 0; s < exams.length; s++) {
+            // create a new node object
+            var node = {};
+            node["id"] = exams[s].id;
+            node["color"] = stringToColour(exams[s].id);
+            final_graph.nodes.push(node);
+
+            for (var t = 0; t < exams.length; t++) {
+                if (adj_matrix[s][t] > 0) {
+                    // create a new link object
+                    var link = {};
+                    link["source"] = exams[s].id;
+                    link["target"] = exams[t].id;
+                    final_graph.links.push(link);
+                }
+            }
+
+        }
+
+
+
+
+
+
+
+
+
+        console.log(final_graph);
+        // final object to pass to the graphUpdate function
+
         // display the graph
-        graphUpdate(fileContent);
+        //graphUpdate(fileContent);
+        //graphUpdate(final_graph);
+        Graph.graphData(final_graph);
     }
 
 
