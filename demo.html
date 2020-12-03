@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>AAC - 3D Force-Directed Graph</title>
+  <link rel='stylesheet' href='./app/public/stylesheets/style.css' />
+  <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+  <script src="./app/public/javascripts/three.js"></script>
+  <script src="./app/public/javascripts/three-spritetext.min.js"></script>
+  <script src="./app/public/javascripts/3d-force-graph.min.js"></script>
+</head>
+
+<body>
+
+<!-- https://github.com/vasturiano/3d-force-graph -->
+
+<div id="file-container">
+    <label for="file-input" id="file-input-label">Choose A Dataset</label>
+    <!-- <input type="file" id="file-input" accept="text/plain" />-->
+    <input type="file" id="file-input" accept=".stu,.txt,.json" />
+    <div id="file-progress-container"><span id="file-progress-percent"></span>% read</div>
+    <div id="contents"></div>
+</div>
+
+<div id="3d-graph"></div>
+
+<script>
+
+    // loading the default graph
+    const Graph = ForceGraph3D()
+        (document.getElementById('3d-graph'))
+        .jsonUrl('./app/public/datasets/miserables.json')
+        .nodeLabel('id')
+        .nodeColor('color')
+        .nodeThreeObject(node => {
+            // use a sphere as a drag handle
+            const obj = new THREE.Mesh(
+                new THREE.SphereGeometry(10),
+                new THREE.MeshBasicMaterial({ depthWrite: false, transparent: true, opacity: 0 })
+            );
+
+            // add text sprite as child
+            const sprite = new SpriteText(node.id);
+            sprite.material.depthWrite = false; // make sprite background transparent
+            sprite.color = node.color;
+            sprite.textHeight = 8;
+            obj.add(sprite);
+
+            return obj;
+        });
+
+
+
+    function graphUpdate(graphData) {
+        // renew the graph with the data from the uploaded file
+        var graphDataObj = JSON.parse(graphData);
+        Graph.graphData(graphDataObj);
+    }
+
+
+        // String to hex color generator so we will be getting consistent colors by the names of the sensors
+        // example:  stringToColour(k+uniqueSensorIdList[k]);
+        // We are adding the sensor id with the (k) from the loop to differentiate the colors when the sensors have similar names
+        function stringToColour(str) {
+            var hash = 0;
+            for (var i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            var colour = '#';
+            for (var i = 0; i < 3; i++) {
+                var value = (hash >> (i * 8)) & 0xFF;
+                colour += ('00' + value.toString(16)).substr(-2);
+            }
+            return colour;
+        }
+
+    function count_common_elements(s1, s2) {
+        var c = 0;
+        for (var x = 0; x <= s1.length - 1; x++) {
+            for (var y = 0; y <= s2.length - 1; y++) {
+                if (s1[x] === s2[y]) {
+                    c++;
+                    break;
+                }
+            }
+        }
+        // console.log("c");
+        // console.log(c);
+        return c;
+    }
+
+    // global array of student objects
+    var students = [];
+    // global array of exam objects
+    var exams = [];
+
+    function fileHandler(fileContent) {
+        // Go through each line
+        var lines = fileContent.split('\n');
+
+        // reset the arrays of objects (these must reset every time we upload a file)
+        students = [];
+        exams = [];
+
+        // each line is a student / student id
+        for (var i = 0; i < lines.length; i++) {
+            // each line contains exam ids
+            var line = lines[i];
+
+            // create a new student object
+            var student = {};
+            // and insert a new propery with the id of the student
+            student["id"] = i + 1; // +1 so the student ids start from 1 but not 0
+
+            // Check if last character in line is space and remove it
+            line = line.replace(/\s*$/, "");
+
+            // separate the exams by space and make an array of them
+            var student_exams = line.split(' ');
+
+            // and insert the array with the exams of the student into a new property into the student object
+            if (student_exams === undefined || student_exams.length == 0 || student_exams[0] === "") {
+                student["exams"] = ["0"]; // insert exam id 0 if there are no exams
+            } else {
+                student["exams"] = student_exams; // insert the array with the exams of the student
+            }
+
+            // finally insert the new student (his object) into the students array
+            students.push(student);
+
+
+            // Now we will loop to each exam
+            for (j = 0; j <= student_exams.length - 1; j++) {
+
+                // We will assign the student ids to each exam into the exam array
+                console.log("Student " + student.id + " is enrolled in exam " + student.exams[j]);
+
+
+                // check if the exam is already listed in the exams array
+                // returns -1 if not found or the index position if found
+                var exam_index = exams.findIndex(x => x.id === student.exams[j]);
+
+                // if the exam is not in the list (array of exam objects) 
+                if (exam_index === -1 || exam_index === undefined) {
+                    // create a new exam object
+                    var exam = {};
+                    // and insert a new property with the id of the exam
+                    exam["id"] = student.exams[j];
+                    // and insert the student inside the array with the students
+                    exam["students"] = [student.id];
+                    // finally insert the new exam (its object) into the exams array
+                    exams.push(exam);
+                } else {
+                    // if the exam exists, 
+                    // check if the student exists (not needed yet since each line is a new student id)
+                    // if student exist 
+                    // continue
+                    // if not
+                    // then add student id into the student array of the exam object 
+                    exams[exam_index].students.push(student.id);
+                }
+
+            }
+
+        }
+
+        console.log("#################################");
+        // Loop through each exam
+        for (l = 0; l <= exams.length - 1; l++) {
+            // And print each student id per exam
+            for (m = 0; m <= exams[l].students.length - 1; m++) {
+                console.log("Exam " + exams[l].id + " Enrolled students: " + exams[l].students[m]);
+            }
+        };
+
+        console.log("############STATS##############");
+        var print_students = { "students": students };
+        var print_exams = { "exams": exams };
+        console.log(print_students);
+        console.log(print_exams);
+
+
+        console.log("##########ADJACENCY MATRIX###########");
+        var adj_matrix = new Array(exams.length).fill(0).map(() => new Array(exams.length).fill(0));
+
+        for (n = 0; n < exams.length; n++) {
+            for (o = 0; o < exams.length; o++) {
+                if (n == o) {
+                    adj_matrix[n][o] = 0; // adj_matrix[i][j]
+                    continue;
+                }
+                var c = count_common_elements(exams[n].students, exams[o].students);
+
+                if (c > 0) {
+                    console.log(exams[n].id + " " + exams[o].id + " " + c);
+                }
+                adj_matrix[n][o] = c;
+            }
+        }
+
+        console.log(adj_matrix);
+
+        console.log("##########CONFLICT DENSITY###########");
+
+        var r = 0;
+        for (var p = 0; p < exams.length; p++) {
+            for (var q = 0; q < exams.length; q++) {
+                if (adj_matrix[p][q] > 0) {
+                    r++;
+                }
+            }
+        }
+
+        var cd = r / (exams.length * exams.length);
+        console.log("Conflict Density: " + cd);
+
+
+        console.log("##########GRAPH COLORING###########");
+        // to do
+        // loop through the adjacency matrix
+        // if the current row value matches the column value
+        // add the current row number and column number to the addEdge function
+        // which adds them as objects in an arrayy like:
+
+        var final_graph =
+        {
+            "nodes": [],
+            "links": []
+        };
+
+
+
+        for (var s = 0; s < exams.length; s++) {
+            // create a new node object
+            var node = {};
+            node["id"] = exams[s].id;
+            node["color"] = stringToColour(exams[s].id);
+            final_graph.nodes.push(node);
+
+            for (var t = 0; t < exams.length; t++) {
+                if (adj_matrix[s][t] > 0) {
+                    // create a new link object
+                    var link = {};
+                    link["source"] = exams[s].id;
+                    link["target"] = exams[t].id;
+                    final_graph.links.push(link);
+                }
+            }
+
+        }
+
+
+
+
+
+
+
+
+
+        console.log(final_graph);
+        // final object to pass to the graphUpdate function
+
+        // display the graph
+        //graphUpdate(fileContent);
+        //graphUpdate(final_graph);
+        Graph.graphData(final_graph);
+    }
+
+
+    document.querySelector("#file-input").addEventListener('change', function () {
+        // files that user has chosen
+        var all_files = this.files;
+        if (all_files.length == 0) {
+            alert('Error : No file selected');
+            return;
+        }
+
+        // first file selected by user
+        var file = all_files[0];
+
+        // files types allowed
+        //var allowed_types = ['text/plain'];
+        // var allowed_types = ['.stu,.txt,.json'];
+        //     if (allowed_types.indexOf(file.type) == -1) {
+        //           alert('Error : Incorrect file type');
+        //           return;
+        //     } 
+
+        // Max 2 MB allowed
+        var max_size_allowed = 2 * 1024 * 1024
+        if (file.size > max_size_allowed) {
+            alert('Error : Exceeded size 2MB');
+            return;
+        }
+
+        // file validation is successfull
+        // we will now read the file
+
+        var reader = new FileReader();
+
+        // file reading started
+        reader.addEventListener('loadstart', function () {
+            document.querySelector("#file-input-label").style.display = 'none';
+        });
+
+        // file reading finished successfully
+        reader.addEventListener('load', function (e) {
+            var text = e.target.result;
+            //console.log(text);
+
+            fileHandler(text);
+            // contents of the file
+            // document.querySelector("#contents").innerHTML = text;
+            // document.querySelector("#contents").style.display = 'block';
+            document.querySelector("#file-input-label").style.display = 'block';
+        });
+
+        // file reading failed
+        reader.addEventListener('error', function () {
+            alert('Error : Failed to read file');
+        });
+
+        // file read progress 
+        reader.addEventListener('progress', function (e) {
+            if (e.lengthComputable == true) {
+                document.querySelector("#file-progress-percent").innerHTML = Math.floor((e.loaded / e.total) * 100);
+                document.querySelector("#file-progress-percent").style.display = 'block';
+            }
+        });
+
+        // read as text file
+        reader.readAsText(file);
+    });
+
+</script>
+</body>
+
+</html>

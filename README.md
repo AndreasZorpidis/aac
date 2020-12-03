@@ -5,6 +5,8 @@
 
 #### TLDR: This is a Node.js desktop application built with Electron.js, Express.js, Handlebars and 3D force-directed graph component using ThreeJS/WebGL.
 
+## Links
+* [Online Demo](https://andreaszorpidis.github.io/aac/demo.html)
 * [Full paper [GR]](./paper.pdf)
 
 ## Abstract
@@ -17,7 +19,7 @@ git clone https://github.com/AndreasZorpidis/aac.git
 ```
 * and enter into the directory.
 ```
-cd aac/express_server
+cd aac/app
 ```
 * Install the dependencies required.
 ```
