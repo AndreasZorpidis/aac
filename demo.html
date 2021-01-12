@@ -2,34 +2,46 @@
 <html>
 
 <head>
-  <title>AAC - 3D Force-Directed Graph</title>
-  <link rel='stylesheet' href='./app/public/stylesheets/style.css' />
-  <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
-  <script src="./app/public/javascripts/three.js"></script>
-  <script src="./app/public/javascripts/three-spritetext.min.js"></script>
-  <script src="./app/public/javascripts/3d-force-graph.min.js"></script>
+    <title>AAC - 3D Force-Directed Graph</title>
+    <link rel='stylesheet' href='./app/public/css/style.css' />
+    <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+    <script src="./app/public/js/three.js"></script>
+    <script src="./app/public/js/three-spritetext.min.js"></script>
+    <script src="./app/public/js/3d-force-graph.min.js"></script>
+    <script type="text/javascript" src="./app/public/js/dat.gui.js"></script>
 </head>
 
 <body>
+  <script type="text/javascript">
+    var obj = {
+      Algorithm: 'FIRST-FIT'
+    };
 
-<!-- https://github.com/vasturiano/3d-force-graph -->
+    var gui = new dat.gui.GUI();
 
-<div id="file-container">
-    <label for="file-input" id="file-input-label">Choose A Dataset</label>
-    <!-- <input type="file" id="file-input" accept="text/plain" />-->
-    <input type="file" id="file-input" accept=".stu,.txt,.json" />
-    <div id="file-progress-container"><span id="file-progress-percent"></span>% read</div>
-    <div id="contents"></div>
-</div>
+    gui.remember(obj);
 
-<div id="3d-graph"></div>
+    gui.add(obj, 'Algorithm', ['FIRST-FIT']);
+
+  </script>
+    <!-- https://github.com/vasturiano/3d-force-graph -->
+
+    <div id="file-container">
+        <label for="file-input" id="file-input-label">Choose A Dataset</label>
+        <!-- <input type="file" id="file-input" accept="text/plain" />-->
+        <input type="file" id="file-input" accept=".stu,.txt,.json" />
+        <div id="file-progress-container"><span id="file-progress-percent"></span>% read</div>
+        <div id="contents"></div>
+    </div>
+
+    <div id="3d-graph"></div>
 
 <script>
 
     // loading the default graph
     const Graph = ForceGraph3D()
         (document.getElementById('3d-graph'))
-        .jsonUrl('./app/public/datasets/miserables.json')
+        .jsonUrl('./app/public/datasets/example.json')
         .nodeLabel('id')
         .nodeColor('color')
         .nodeThreeObject(node => {
@@ -58,22 +70,35 @@
     }
 
 
-        // String to hex color generator so we will be getting consistent colors by the names of the sensors
-        // example:  stringToColour(k+uniqueSensorIdList[k]);
-        // We are adding the sensor id with the (k) from the loop to differentiate the colors when the sensors have similar names
-        function stringToColour(str) {
-            var hash = 0;
-            for (var i = 0; i < str.length; i++) {
-                hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            var colour = '#';
-            for (var i = 0; i < 3; i++) {
-                var value = (hash >> (i * 8)) & 0xFF;
-                colour += ('00' + value.toString(16)).substr(-2);
-            }
-            return colour;
+    // String to hex color generator so we will be getting consistent colors by the names of the sensors
+    // example:  stringToColour(k+uniqueSensorIdList[k]);
+    // We are adding the sensor id with the (k) from the loop to differentiate the colors when the sensors have similar names
+    function stringToColour(str) {
+        var hash = 0;
+        for (var i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
         }
+        var colour = '#';
+        for (var i = 0; i < 3; i++) {
+            var value = (hash >> (i * 8)) & 0xFF;
+            colour += ('00' + value.toString(16)).substr(-2);
+        }
+        return colour;
+    }
 
+    // Convert a number ton an rgb sequence
+    // https://stackoverflow.com/questions/11866781/how-do-i-convert-an-integer-to-a-javascript-color/11866980
+    function numToRGBsequence(num) {
+        num >>>= 0;
+        var b = num & 0xFF,
+            g = (num & 0xFF00) >>> 8,
+            r = (num & 0xFF0000) >>> 16,
+            a = ((num & 0xFF000000) >>> 24) / 255;
+        //return "rgba(" + [r, g, b, a].join(",") + ")";
+        return [r, g, b, a].join(",");
+    }
+
+    // Count the common students between exams 
     function count_common_elements(s1, s2) {
         var c = 0;
         for (var x = 0; x <= s1.length - 1; x++) {
@@ -84,7 +109,6 @@
                 }
             }
         }
-        // console.log("c");
         // console.log(c);
         return c;
     }
@@ -214,14 +238,16 @@
         var cd = r / (exams.length * exams.length);
         console.log("Conflict Density: " + cd);
 
+        
+        // Add conflict density to dat.gui
+        obj["Conflict_Density"] = cd;
+        gui.add(obj, 'Conflict_Density');  
+
+
 
         console.log("##########GRAPH COLORING###########");
-        // to do
-        // loop through the adjacency matrix
-        // if the current row value matches the column value
-        // add the current row number and column number to the addEdge function
-        // which adds them as objects in an arrayy like:
 
+        // Graph to display
         var final_graph =
         {
             "nodes": [],
@@ -229,36 +255,131 @@
         };
 
 
+        // Simple example making the graph with random colors
+        // console.log("-----------RANDOM-COLORING-----------");
+        // for (var s = 0; s < exams.length; s++) {
+        //     // create a new node object
+        //     var node = {};
+        //     node["id"] = exams[s].id;
+        //     node["color"] = stringToColour(exams[s].id);
+        //     final_graph.nodes.push(node);
+        //     for (var t = 0; t < exams.length; t++) {
+        //         if (adj_matrix[s][t] > 0) {
+        //             // create a new link object
+        //             var link = {};
+        //             link["source"] = exams[s].id;
+        //             link["target"] = exams[t].id;
+        //             final_graph.links.push(link);
+        //         }
+        //     }
+        // }
 
+        console.log("-------------FIRST-FIT-------------");
+
+        var examColorIDList = []; // List that contains a color id for each exam
+        var colorCounter = 0;
+
+        //Reset the examColorIDList
+        for (var u = 0; u < exams.length; u++) {
+            examColorIDList[u] = 0; //Set all the color ids to 0
+        }
+
+        //Loop exams (each exam)
         for (var s = 0; s < exams.length; s++) {
             // create a new node object
             var node = {};
+            // Insert the exam id into the object
             node["id"] = exams[s].id;
-            node["color"] = stringToColour(exams[s].id);
-            final_graph.nodes.push(node);
 
-            for (var t = 0; t < exams.length; t++) {
-                if (adj_matrix[s][t] > 0) {
-                    // create a new link object
-                    var link = {};
-                    link["source"] = exams[s].id;
-                    link["target"] = exams[t].id;
-                    final_graph.links.push(link);
+            // Create the first color id
+            var currentExamColorID = 1;
+
+            // Loop through the color ids of the exams untill all the exams have a color assigned
+            while (examColorIDList[s] == 0) {
+                // Set a color update state/flag
+                var colorUpdateStatus = false;
+
+                // Compare each exam's students
+                for (var j = 0; j < exams.length; j++) {
+                    // Count the common students between exams but don't compare each exam with itself
+                    // If there are common students then the exams are linked
+                    if (count_common_elements(exams[s].students, exams[j].students) > 0 && s != j) {
+                        // Then compare the color of the current exam with the compared exam
+                        // and if they both have the same color,
+                        if (examColorIDList[j] == currentExamColorID) {
+                            // make a new color
+                            colorUpdateStatus = true;
+                        }
+                    }
+                }
+                // Make a new color
+                if (colorUpdateStatus == true) {
+                    currentExamColorID++;
+                } else {
+                    // If a new color is not needed to be made,
+                    // assign the current color to the current exam
+                    examColorIDList[s] = currentExamColorID;
+                }
+
+                // Update the color counter if a new color has been made
+                if (currentExamColorID > colorCounter) {
+                    // Assign the current color id to the counter
+                    colorCounter = currentExamColorID;
                 }
             }
 
+
+            // Instert the exam color into the object
+            node["color"] = stringToColour(numToRGBsequence(examColorIDList[s]));
+
+            // Insert the object into the graph
+            final_graph.nodes.push(node);
+
+            // Loop to check links and insert them into the graph
+            for (var t = 0; t < exams.length; t++) {
+                if (adj_matrix[s][t] > 0) {
+                    // Create a new link object
+                    var link = {};
+                    link["source"] = exams[s].id;
+                    link["target"] = exams[t].id;
+                    // Insert the link into links array of the object
+                    final_graph.links.push(link);
+                }
+            }
         }
 
 
+        console.log("Total number of colors used: " + colorCounter);
+
+        // Add colors number to dat.gui
+        obj["Colors_Number"] = colorCounter;
+        gui.add(obj, 'Colors_Number');    
+
+        // Add colors folder to dat.gui 
+        var f1 = gui.addFolder('Colors')
+
+        // Get each color from the list of colors
+        uniqColors = [...new Set(examColorIDList)];
+
+        console.log("Colors used: ");
+        for (var v = 0; v < uniqColors.length; v++) {
+            var getHexColor = stringToColour(numToRGBsequence(uniqColors[v]));
+            console.log('%c' + getHexColor, 'background: #222; color: ' + getHexColor);
+
+            // Add colors to dat.gui
+            obj["color" + v] = getHexColor;
+            f1.addColor(obj, "color" + v);
+        }
 
 
-
-
-
-
-
-        console.log(final_graph);
         // final object to pass to the graphUpdate function
+        console.log(final_graph);
+
+
+        // Add statusr to dat.gui
+        obj["Status"] = "Completed";
+        gui.add(obj, 'Status');  
+
 
         // display the graph
         //graphUpdate(fileContent);

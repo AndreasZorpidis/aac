@@ -3,14 +3,28 @@
 
 <head>
   <title>{{title}}</title>
-  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <link rel='stylesheet' href='./css/style.css' />
   <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
-  <script src="/javascripts/three.js"></script>
-  <script src="/javascripts/three-spritetext.min.js"></script>
-  <script src="/javascripts/3d-force-graph.min.js"></script>
+  <script src="./js/three.js"></script>
+  <script src="./js/three-spritetext.min.js"></script>
+  <script src="./js/3d-force-graph.min.js"></script>
+  <script type="text/javascript" src="./js/dat.gui.js"></script>
 </head>
 
 <body>
+
+  <script type="text/javascript">
+    var obj = {
+      Algorithm: 'FIRST-FIT'
+    };
+
+    var gui = new dat.gui.GUI();
+
+    gui.remember(obj);
+
+    gui.add(obj, 'Algorithm', ['FIRST-FIT']);
+
+  </script>
   {{{body}}}
 </body>
 
