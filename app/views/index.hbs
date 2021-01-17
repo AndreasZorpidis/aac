@@ -256,6 +256,93 @@
             .name('Conflict Density');
 
 
+        console.log("##########MAX DEGREE###########");
+
+
+        var maxDeg = 0;
+        var degreeList = [];
+        var totalConflicts = 0; //used for mean degree calculation
+        for (var ii = 0; ii < exams.length; ii++) {
+            var dd = 0;
+            for (var jj = 0; jj < exams.length; jj++) {
+                if (adj_matrix[ii][jj] > 0) {
+                    dd++;
+                    totalConflicts++; // used for mean degree calculation
+                }
+            }
+            degreeList.push(dd);
+            if (dd > maxDeg) {
+                maxDeg = dd;
+            }
+        }
+
+
+
+        //console.log(degreeList)
+        console.log("Max Degree: " + maxDeg);
+
+        // Add max degree to dat.gui
+        obj["max_degree"] = maxDeg;
+        gui.add(obj, 'max_degree')
+            .name('Max Degree');
+
+
+        console.log("##########MIN DEGREE###########");
+
+        // Getting the smallest (second smallest degree) from the degree list
+        // https://www.tutorialspoint.com/fetch-second-minimum-element-from-an-array-without-sorting-javascript
+        const minimumIndex = arr => {
+            return arr.indexOf(Math.min(...arr));
+        };
+        const secondMinimum = arr => {
+            const copy = arr.slice();
+            copy.splice(minimumIndex(copy), 1);
+            return copy[minimumIndex(copy)];
+        };
+
+        var minDeg = secondMinimum(degreeList);
+
+        console.log("Min Degree: " + minDeg);
+        // Add max degree to dat.gui
+        obj["min_degree"] = minDeg;
+        gui.add(obj, 'min_degree')
+            .name('Min Degree');
+
+
+
+        console.log("##########MED DEGREE###########");
+
+        // Sorted degree list
+        var degreeListFiltered = degreeList.sort(function (a, b) { return a - b });
+        // Middle position of the list (rounded)
+        var medDegreeValue = Math.round(degreeListFiltered.length / 2);
+        console.log(medDegreeValue);
+        console.log(degreeListFiltered);
+        // Middle value of the list
+        var medDeg = degreeListFiltered[medDegreeValue];
+        console.log("Med Degree: " + medDeg);
+        // Add max degree to dat.gui
+        obj["med_degree"] = medDeg;
+        gui.add(obj, 'med_degree')
+            .name('Med Degree');
+
+
+        console.log("##########MEAN DEGREE###########");
+
+        var mean = totalConflicts / exams.length;
+
+        console.log("Mean Degree: " + mean);
+
+        // Add max degree to dat.gui
+        obj["mean_degree"] = 1.000; // Define a value with a floating point to fix dat.gui bug which converts to integer https://github.com/dataarts/dat.gui/issues/48
+        gui.add(obj, 'mean_degree')
+            .name('Mean Degree')
+            .listen();
+        // Add max degree to dat.gui
+        obj["mean_degree"] = mean;
+
+
+
         console.log("##########GRAPH COLORING###########");
 
         // Graph to display
