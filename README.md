@@ -31,7 +31,15 @@ Each single line/data contains or is assigned to vertices separated by spaces.
 For example: A line represents a student who is assigned to exams (vertices) and each space represents a link between those vertices.
 Based on this example, with graph coloring we can assign effectively a different examination date/time for each exam where a conflict is found.
 
-## Getting Started with Node JS 
+## Getting Started with Node.JS 
+* Download and install Node.js with NPM
+```
+https://nodejs.org/en/download/
+```
+* Download, install and launch Git Bash or launch CMD
+```
+https://git-scm.com/downloads
+```
 * Clone this repo
 ```
 git clone https://github.com/AndreasZorpidis/aac.git
