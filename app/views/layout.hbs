@@ -9,20 +9,38 @@
   <script src="./js/three-spritetext.min.js"></script>
   <script src="./js/3d-force-graph.min.js"></script>
   <script type="text/javascript" src="./js/dat.gui.js"></script>
+  <script src="./js/FileSaver.min.js"></script>
 </head>
 
 <body>
 
+  <style>
+    li.save-row {
+      display: none;
+    }
+  </style>
   <script type="text/javascript">
     var obj = {
-      Algorithm: 'FIRST-FIT'
+      algorithm: 'FIRST-FIT'
     };
 
     var gui = new dat.gui.GUI();
 
     gui.remember(obj);
 
-    gui.add(obj, 'Algorithm', ['FIRST-FIT']);
+    gui.add(obj, 'algorithm', ['FIRST-FIT'])
+      .name('Select Algorithm');
+
+    // https://stackoverflow.com/questions/23417991/load-a-file-using-a-dat-gui-button
+    var inputFileParams = {
+      loadFile: function () {
+        document.getElementById('file-input').click();
+      }
+    };
+
+    gui.add(inputFileParams, 'loadFile')
+      .name('Upload Dataset')
+      .listen();
 
   </script>
   {{{body}}}

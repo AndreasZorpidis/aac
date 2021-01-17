@@ -4,26 +4,26 @@
 <!-- https://github.com/vasturiano/3d-force-graph -->
 <!-- <textarea id="log"></textarea> -->
 <div id="file-container">
-    <label for="file-input" id="file-input-label">Choose A Dataset</label>
-    <!-- <input type="file" id="file-input" accept="text/plain" />-->
-    <input type="file" id="file-input" accept=".stu,.txt,.json" />
-    <div id="file-progress-container"><span id="file-progress-percent"></span>% read</div>
+    <!--  <label for="file-input" id="file-input-label">Choose A Dataset</label>
+     <input type="file" id="file-input" accept="text/plain" />-->
+    <input type="file" id="file-input" accept=".stu,.txt,.json" style="visibility:hidden" />
+    <!--<div id="file-progress-container"><span id="file-progress-percent"></span>% read</div>-->
     <div id="contents"></div>
 </div>
 
 <div id="3d-graph"></div>
 {{!-- <script>
-(function () {
-                var old = console.log;
-                var logger = document.getElementById('log');
-                console.log = function (message) {
-                    if (typeof message == 'object') {
-                        logger.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : message) + '&#13;&#10;';
-                    } else {
-                        logger.innerHTML += message + '&#13;&#10;';
-                    }
-                }
-            })(); 
+    (function () {
+        var old = console.log;
+        var logger = document.getElementById('log');
+        console.log = function (message) {
+            if (typeof message == 'object') {
+                logger.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : message) + '&#13;&#10;';
+            } else {
+                logger.innerHTML += message + '&#13;&#10;';
+            }
+        }
+    })(); 
 </script> --}}
 <script>
 
@@ -100,6 +100,18 @@
         }
         // console.log(c);
         return c;
+    }
+
+    // Save the solution into a txt file 
+    // With use of FileSaver.js https://github.com/eligrey/FileSaver.js
+    function createSolutionFile(finalGraphObject) {
+        var textFile = "";
+        for (var i = 0; i < finalGraphObject.nodes.length; i++) {
+            var newLine = finalGraphObject.nodes[i].id + " " + finalGraphObject.nodes[i].color + "\r\n";
+            textFile = textFile + newLine;
+        }
+        var blob = new Blob([textFile], { type: "text/plain;charset=utf-8" });
+        saveAs(blob, "solution.sol");
     }
 
     // global array of student objects
@@ -189,8 +201,18 @@
         console.log("############STATS##############");
         var print_students = { "students": students };
         var print_exams = { "exams": exams };
-        console.log(print_students);
-        console.log(print_exams);
+        console.log("Vertices: " + exams.length + "\r\n" + print_exams);
+        console.log("Data: " + students.length + "\r\n" + print_students);
+
+
+        // Add stats to dat.gui
+        obj["Vertices"] = exams.length;
+        gui.add(obj, 'Vertices')
+            .name('Vertices');
+
+        obj["Data"] = students.length;
+        gui.add(obj, 'Data')
+            .name('Data');
 
 
         console.log("##########ADJACENCY MATRIX###########");
@@ -227,11 +249,11 @@
         var cd = r / (exams.length * exams.length);
         console.log("Conflict Density: " + cd);
 
-        
+
         // Add conflict density to dat.gui
         obj["Conflict_Density"] = cd;
-        gui.add(obj, 'Conflict_Density');  
-
+        gui.add(obj, 'Conflict_Density')
+            .name('Conflict Density');
 
 
         console.log("##########GRAPH COLORING###########");
@@ -342,10 +364,11 @@
 
         // Add colors number to dat.gui
         obj["Colors_Number"] = colorCounter;
-        gui.add(obj, 'Colors_Number');    
+        gui.add(obj, 'Colors_Number')
+            .name('Number of Colors');
 
         // Add colors folder to dat.gui 
-        var f1 = gui.addFolder('Colors')
+        var f1 = gui.addFolder('List of Colors')
 
         // Get each color from the list of colors
         uniqColors = [...new Set(examColorIDList)];
@@ -365,9 +388,20 @@
         console.log(final_graph);
 
 
-        // Add statusr to dat.gui
+        // Add status to dat.gui
         obj["Status"] = "Completed";
-        gui.add(obj, 'Status');  
+        gui.add(obj, 'Status');
+
+
+        // Create a solution file
+        var outputFileParams = {
+            exportFile: function () {
+                createSolutionFile(final_graph);
+            }
+        };
+
+        gui.add(outputFileParams, 'exportFile')
+            .name('Download Solution');
 
 
         // display the graph
@@ -378,6 +412,22 @@
 
 
     document.querySelector("#file-input").addEventListener('change', function () {
+
+        // Used to refresh dat.gui and make new control panels for each dataset load
+        gui = new dat.gui.GUI();
+
+        // Get file name to display in dat.gui
+        var filename = document.querySelector("#file-input").files[0].name;
+
+        obj["filename"] = filename;
+        gui.add(obj, 'filename')
+            .name('File');
+
+        // TODO (get the selected algorithm and display it with dat.gui)
+        obj["selectedAlgo"] = "FIRST-FIT";
+        gui.add(obj, 'selectedAlgo')
+            .name('Algorithm');
+
         // files that user has chosen
         var all_files = this.files;
         if (all_files.length == 0) {
@@ -409,9 +459,9 @@
         var reader = new FileReader();
 
         // file reading started
-        reader.addEventListener('loadstart', function () {
-            document.querySelector("#file-input-label").style.display = 'none';
-        });
+        // reader.addEventListener('loadstart', function () {
+        //   document.querySelector("#file-input-label").style.display = 'none';
+        // });
 
         // file reading finished successfully
         reader.addEventListener('load', function (e) {
@@ -422,7 +472,7 @@
             // contents of the file
             // document.querySelector("#contents").innerHTML = text;
             // document.querySelector("#contents").style.display = 'block';
-            document.querySelector("#file-input-label").style.display = 'block';
+            // document.querySelector("#file-input-label").style.display = 'block';
         });
 
         // file reading failed
@@ -431,12 +481,12 @@
         });
 
         // file read progress 
-        reader.addEventListener('progress', function (e) {
-            if (e.lengthComputable == true) {
-                document.querySelector("#file-progress-percent").innerHTML = Math.floor((e.loaded / e.total) * 100);
-                document.querySelector("#file-progress-percent").style.display = 'block';
-            }
-        });
+        // reader.addEventListener('progress', function (e) {
+        //   if (e.lengthComputable == true) {
+        //     document.querySelector("#file-progress-percent").innerHTML = Math.floor((e.loaded / e.total) * 100);
+        //      document.querySelector("#file-progress-percent").style.display = 'block';
+        //   }
+        //});
 
         // read as text file
         reader.readAsText(file);
